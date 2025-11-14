@@ -1,11 +1,11 @@
-# 📍 Model 1: City Selection Model  
+#  Model 1: City Selection Model  
 *A Data-Driven Framework for Identifying High-Potential U.S. Metro Areas*
 
 This model ranks all U.S. metropolitan statistical areas (CBSAs) based on economic fundamentals, housing market strength, migration dynamics, climate risk, and affordability. The final output is a **composite score (0–1)** indicating overall market attractiveness for real estate investment and long-term stability.
 
 ---
 
-# 📂 Datasets Used
+#  Datasets Used
 
 We merged **five datasets** using `CBSA` as the key:
 
@@ -35,7 +35,7 @@ Final merged dataset: **377 metros × 41 columns**
 
 ---
 
-# ⚙️ Data Cleaning & Standardization
+#  Data Cleaning & Standardization
 
 - Standardized column names  
 - Fixed CBSA formatting inconsistencies  
@@ -48,7 +48,7 @@ Final merged dataset: **377 metros × 41 columns**
 
 ---
 
-# 📊 Feature Normalization
+#  Feature Normalization
 
 All features were scaled using 0–1 normalization:
 
@@ -73,9 +73,9 @@ All features were scaled using 0–1 normalization:
 
 ---
 
-# 🧱 Model Dimensions
+#  Model Dimensions
 
-## 1️⃣ Economic Strength (25%)
+## 1️. Economic Strength (25%)
 - `Unemployment_rate_2024_norm` *(inverted)*  
 - `GDP_2023_norm`  
 - `PerCapitaIncome_norm`  
@@ -86,7 +86,7 @@ All features were scaled using 0–1 normalization:
 
 ---
 
-## 2️⃣ Housing Growth & Stability (25%)
+## 2️. Housing Growth & Stability (25%)
 Growth metrics:  
 - `growth_1yr_norm`  
 - `growth_3yr_norm`  
@@ -100,7 +100,7 @@ Stability (inverted):
 
 ---
 
-## 3️⃣ Migration Dynamics (20%)
+## 3️. Migration Dynamics (20%)
 Positive:  
 - `inflow_returns_norm`  
 - `inflow_pop_norm`  
@@ -116,7 +116,7 @@ Negative (inverted):
 
 ---
 
-## 4️⃣ Climate Risk & Resilience (15%)
+## 4️. Climate Risk & Resilience (15%)
 Risk (inverted):  
 - `RISK_SCORE_norm`  
 - `EAL_SCORE_norm`  
@@ -127,12 +127,12 @@ Resilience:
 
 ---
 
-## 5️⃣ Affordability (15%)
+## 5️. Affordability (15%)
 - `RPP_norm` *(inverted → lower cost = higher score)*
 
 ---
 
-# 🧮 Final Composite Score
+#  Final Composite Score
 
 We applied **industry-standard weights**:
 
@@ -144,14 +144,14 @@ We applied **industry-standard weights**:
 | Climate Risk & Resilience | **15%** |
 | Affordability | **15%** |
 
-##Final Score Formula:
+## Final Score Formula:
 
--Final_City_Score =
--ES_score * 0.25 +
--HG_score * 0.25 +
--MG_score * 0.20 +
--CL_score * 0.15 +
--AF_score * 0.15
+Final_City_Score =
+ES_score * 0.25 +
+HG_score * 0.25 +
+MG_score * 0.20 +
+CL_score * 0.15 +
+AF_score * 0.15
 
 
 Higher score → better metro.
@@ -160,7 +160,7 @@ Observed range: **0.35 → 0.61**
 
 ---
 
-# 📤 Model Outputs
+#  Model Outputs
 
 ### **1. Full normalized dataset**
 Includes all raw variables + normalized features + dimension scores  
@@ -181,7 +181,7 @@ Higher `Final_City_Score` = stronger market.
 
 ---
 
-# 🏁 Conclusion
+#  Conclusion
 
 Model 1 integrates multi-source metro-level data to create a ranked, weighted scoring system that identifies the strongest U.S. metros based on:
 
