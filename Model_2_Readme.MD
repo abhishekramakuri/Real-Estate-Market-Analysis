@@ -121,137 +121,145 @@ The ML model produces:
 predicted_fair_price
 
 
-We then apply a transparent uncertainty interval.
+## 🎯 Fair Price Range (95 percent interval)
 
-🎯 Fair Price Range (95 percent interval)
-fair_low_95  = predicted_fair_price * 0.75
-fair_high_95 = predicted_fair_price * 1.25
+We then apply a transparent uncertainty interval:
 
+    fair_low_95  = predicted_fair_price * 0.75
+    fair_high_95 = predicted_fair_price * 1.25
 
 This ±25 percent range:
 
-Avoids unstable sigma-based CI
+- Avoids unstable sigma-based CI  
+- Matches typical appraisal & Zestimate variance  
+- Works consistently across markets  
 
-Matches typical appraisal & Zestimate variance
+---
 
-Works consistently across markets
-
-💰 Maximum Offer Price
+## 💰 Maximum Offer Price
 
 We apply a conservative 5 percent safety margin:
 
-max_offer_price = predicted_fair_price * 0.95
-
+    max_offer_price = predicted_fair_price * 0.95
 
 This ensures:
 
-We do not overpay
+- We do not overpay  
+- Renovation & holding costs are covered  
+- Margins exist for profitable resale  
 
-Renovation & holding costs are covered
+---
 
-Margins exist for profitable resale
-
-🏳️ Review Flag (AI Confidence Measure)
+## 🏳️ Review Flag (AI Confidence Measure)
 
 We quantify uncertainty using:
 
-relative_bandwidth = (fair_high_95 - fair_low_95) / predicted_fair_price
+    relative_bandwidth = (fair_high_95 - fair_low_95) / predicted_fair_price
 
-Decision Rule
+### Decision Rule
 
-If relative_bandwidth > 0.50 → REVIEW_REQUIRED
+- If `relative_bandwidth > 0.50` → `REVIEW_REQUIRED`  
+- Else → `OK`  
 
-Else → OK
+**OK**  
+→ Model is confident enough for automated pricing  
 
-OK
-→ Model is confident enough for automated pricing
+**REVIEW_REQUIRED**  
+→ Human analyst must validate price due to high uncertainty  
 
-REVIEW_REQUIRED
-→ Human analyst must validate price due to high uncertainty
+This creates an **AI + Human Hybrid Workflow**.
 
-This creates an AI + Human Hybrid Workflow.
+---
 
-📦 Model-2 Output Columns
-Column	Description
-property_id	Unique ID
-city, state, zip	Location fields
-beds, baths, sqft, lot_size, age	Structural features
-closed_price	Last recorded sale
-predicted_fair_price	ML-estimated acquisition price
-fair_low_95, fair_high_95	±25 percent range
-max_offer_price	Safe maximum bid
-review_flag	OK / REVIEW_REQUIRED
-CBSA, CBSA_NAME	Metro identifiers
-Final_City_Score	Score from Model 1
-🗂️ Repository Structure (Model-2 Folder)
-Model_2/
-│
-├── Model2_AcquisitionPrice.ipynb        # Main notebook
-├── Model2_AcquisitionPrices_combined.csv
-├── redfin_data_raw/                     # Raw Redfin exports
-├── cleaned_data/                        # Preprocessed metro datasets
-└── zip_cbsa_crosswalk.csv               # ZIP → CBSA mapping
+## 📦 Model-2 Output Columns
 
-▶️ How to Run Model-2
-1. Install dependencies
-pip install -r requirements.txt
+| Column                 | Description                              |
+|------------------------|------------------------------------------|
+| `property_id`          | Unique ID                                |
+| `city`, `state`, `zip` | Location fields                          |
+| `beds`, `baths`, `sqft`, `lot_size`, `age` | Structural features |
+| `closed_price`         | Last recorded sale                       |
+| `predicted_fair_price` | ML-estimated acquisition price           |
+| `fair_low_95`, `fair_high_95` | ±25 percent range                |
+| `max_offer_price`      | Safe maximum bid                         |
+| `review_flag`          | `OK` / `REVIEW_REQUIRED`                 |
+| `CBSA`, `CBSA_NAME`    | Metro identifiers                        |
+| `Final_City_Score`     | Score from Model 1                       |
 
-2. Open the notebook
-Model_2/Model2_AcquisitionPrice.ipynb
+---
 
-3. Run all cells
+## 🗂️ Repository Structure (Model-2 Folder)
+
+    Model_2/
+    │
+    ├── Model2_AcquisitionPrice.ipynb        # Main notebook
+    ├── Model2_AcquisitionPrices_combined.csv
+    ├── redfin_data_raw/                     # Raw Redfin exports
+    ├── cleaned_data/                        # Preprocessed metro datasets
+    └── zip_cbsa_crosswalk.csv               # ZIP → CBSA mapping
+
+---
+
+## ▶️ How to Run Model-2
+
+1. Install dependencies:
+
+    pip install -r requirements.txt
+
+2. Open the notebook:
+
+    Model_2/Model2_AcquisitionPrice.ipynb
+
+3. Run all cells.
 
 The notebook will:
 
-Load + clean Redfin data
+- Load + clean Redfin data  
+- Merge CBSA & Model-1 scores  
+- Train Gradient Boosting Model  
+- Generate fair price + uncertainty bands  
+- Export output CSV  
 
-Merge CBSA & Model-1 scores
+---
 
-Train Gradient Boosting Model
+## 🔍 Example Output (Sample Row)
 
-Generate fair price + uncertainty bands
+    property_id:         10392
+    beds:                3
+    baths:               1.5
+    sqft:                1897
+    predicted_fair_price: 186,893
+    fair_low_95:          140,170
+    fair_high_95:         233,617
+    max_offer_price:      177,548
+    review_flag:          REVIEW_REQUIRED
 
-Export output CSV
+---
 
-🔍 Example Output (Sample Row)
-property_id:         10392
-beds:                3
-baths:               1.5
-sqft:                1897
-predicted_fair_price: 186,893
-fair_low_95:          140,170
-fair_high_95:         233,617
-max_offer_price:      177,548
-review_flag:          REVIEW_REQUIRED
-
-🚀 Why Model-2 Is Critical
+## 🚀 Why Model-2 Is Critical
 
 Model-2 establishes:
 
-A consistent pricing standard for all acquisitions
+- A consistent pricing standard for all acquisitions  
+- Protection against overpaying  
+- A feed into profit modeling (Model-3)  
+- A foundation for Buy/No-Buy decisioning (Model-4)  
+- Inputs for financial statements including Income Statement, Cash Flow, and Balance Sheet  
 
-Protection against overpaying
+It creates a **repeatable, scalable pricing engine** for real estate investing.
 
-A feed into profit modeling (Model-3)
+---
 
-A foundation for Buy/No-Buy decisioning (Model-4)
+## 📈 Future Improvements
 
-Inputs for financial statements including Income Statement, Cash Flow, and Balance Sheet
+- Integrate XGBoost / LightGBM performance tuning  
+- Add neighborhood-level crime + school quality data  
+- Add Zillow rent estimates to refine yield models  
+- Use Shapley values for explainability  
+- Deploy as an API for real-time pricing  
 
-It creates a repeatable, scalable pricing engine for real estate investing.
+---
 
-📈 Future Improvements
+## 🏁 Conclusion
 
-Integrate XGBoost / LightGBM performance tuning
-
-Add neighborhood-level crime + school quality data
-
-Add Zillow rent estimates to refine yield models
-
-Use Shapley values for explainability
-
-Deploy as an API for real-time pricing
-
-🏁 Conclusion
-
-Model-2 transforms raw property data into actionable acquisition insights using a structured ML workflow and transparent business rules. It is a key component in building a full AI-driven real estate investment platform.
+Model-2 transforms raw property data into **actionable acquisition insights** using a structured ML workflow and transparent business rules. It is a key component in building a full AI-driven real estate investment platform.
