@@ -1,199 +1,188 @@
-Model 2 – Acquisition Price Estimation Model
-AI-Driven Real Estate Valuation for Safe, Data-Backed Acquisition Decisions
-🧩 Overview
+# Model 2 – Acquisition Price Estimation Model
+**AI-Driven Real Estate Valuation for Safe, Data-Backed Acquisition Decisions**
 
-Model 2 estimates the fair acquisition price for residential properties across selected U.S. metros using property-level features and metro quality indicators. This model ensures disciplined pricing, avoids overpayment, and feeds into downstream profitability models (Model 3 and Model 4).
+---
+
+## 🧩 Overview
+
+Model 2 estimates the fair acquisition price for residential properties across selected U.S. metros using property-level features and metro quality indicators. This model ensures we never overpay, provides a standardized pricing method for acquisitions, and creates the foundation for downstream profitability modeling (Model 3 and Model 4).
 
 The model produces:
 
-Predicted Fair Market Price
-
-Fair Price Range (±25 percent)
-
-Maximum Offer Price (5 percent safety margin)
-
-AI Confidence Flag (OK / REVIEW_REQUIRED)
+- **Predicted Fair Market Price**
+- **Fair Price Range (±25 percent)**
+- **Maximum Offer Price (5 percent safety margin)**
+- **AI Confidence Flag (`OK` / `REVIEW_REQUIRED`)**
 
 Model 2 is the first ML component that directly affects financial decisions, offer strategy, and risk management.
 
-📊 Key Objectives
+---
 
-Predict a fair, explainable value for each property
+## 📊 Key Objectives
 
-Apply business rules to enforce disciplined acquisition pricing
+- Predict a fair, explainable value for each property  
+- Apply business rules to set a disciplined acquisition price  
+- Quantify uncertainty using a consistent, investor-friendly range  
+- Create a human-in-the-loop system for risky or uncertain predictions  
+- Prepare clean outputs for subsequent pricing and ROI models  
 
-Quantify uncertainty using a consistent investor-friendly range
+---
 
-Enable a human-in-the-loop system for uncertain cases
+## 📚 Data Sources Used
 
-Prepare clean outputs for profitability and ROI models
-
-📚 Data Sources Used
-1. Redfin Property-Level Data
+### 1. Redfin Property-Level Data
 
 Provides structural attributes and transaction history:
 
-Beds, baths, square footage
+- Beds, baths, square footage  
+- Lot size, year built  
+- Closed price  
+- City, state, ZIP  
 
-Lot size, year built
-
-Closed price
-
-City, state, ZIP
-
-2. ZIP → CBSA Crosswalk
+### 2. ZIP → CBSA Crosswalk
 
 Used to map each property to its official metropolitan area.
 
-3. Model-1 Outputs
+### 3. Model-1 Outputs
 
-Adds metro-level quality indicators:
+Adds metro-level quality scores:
 
-Economic strength
+- Economic strength  
+- Housing growth  
+- Migration  
+- Crime & safety  
+- Affordability  
+- **Final City Score**
 
-Housing growth
+### 4. Engineered Features
 
-Migration
+Created during preprocessing:
 
-Crime & safety
+- Property age  
+- Metro categorical encoding  
+- Median-imputed fields  
 
-Affordability
+---
 
-Final City Score
+## 🛠️ Feature Engineering Pipeline
 
-4. Engineered Features
+Model-2 uses a clean set of engineered features structured for Gradient Boosting Regression.
 
-Generated during preprocessing:
+### Structural Features
 
-Property age
+- `beds`
+- `baths`
+- `sqft`
+- `lot_size`
+- `age`
+- `hoa_fee`
+- `dom` (if available)
 
-Metro categorical encoding
+### Location Features
 
-Median-imputed fields
+- `metro_cat` (numeric encoding)  
+- ZIP → CBSA merge  
+- `Final_City_Score` from Model 1  
 
-🛠️ Feature Engineering Pipeline
+### Data Cleaning Steps
 
-Model 2 uses a cleaned, engineered feature set for Gradient Boosting Regression.
+- Remove non-data header disclaimer rows  
+- Standardize column names  
+- Convert ZIP to 5-digit string  
+- Median-impute missing numeric values  
+- Merge all cleaned metro files into one dataset  
 
-Structural Features
+---
 
-beds
+## 🤖 Modeling Approach
 
-baths
+We use a **Gradient Boosting Regressor (GBR)** due to:
 
-sqft
+- Robust performance on nonlinear relationships  
+- Strong results on tabular housing data  
+- High interpretability of feature importance  
+- Stable performance across diverse metro types  
 
-lot_size
+### Training Details
 
-age
+- **Train/Test Split:** 80/20  
+- **MAE:** ≈ \$46,000  
+- **R²:** ≈ 0.87  
 
-hoa_fee
+These metrics are consistent with expected variance in U.S. residential housing.
 
-dom (if available)
+---
 
-Location Features
+## 🏷️ Fair Price Estimation
 
-metro_cat (numeric encoding)
+The ML model produces:
 
-ZIP → CBSA merge
-
-Final_City_Score from Model 1
-
-Data Cleaning Steps
-
-Remove non-data header rows
-
-Standardize column names
-
-Convert ZIP to 5-digit string
-
-Median-impute missing numeric fields
-
-Merge all cleaned metro datasets into one master file
-
-🤖 Modeling Approach
-
-Model-2 uses a Gradient Boosting Regressor (GBR) because of:
-
-Strong nonlinear performance
-
-Proven accuracy on tabular housing data
-
-Explainable feature importance
-
-Stable results across diverse metros
-
-Training Details
-Metric	Value
-Train/Test Split	80/20
-MAE	≈ 46,000 USD
-R²	≈ 0.87
-
-These metrics align with typical variance in U.S. residential housing.
-
-🏷️ Fair Price Estimation
-
-The ML model outputs:
-
+```text
 predicted_fair_price
 
+
+We then apply a transparent uncertainty interval.
+
 🎯 Fair Price Range (95 percent interval)
-fair_low_95  = predicted_fair_price × 0.75
-fair_high_95 = predicted_fair_price × 1.25
+fair_low_95  = predicted_fair_price * 0.75
+fair_high_95 = predicted_fair_price * 1.25
 
 
 This ±25 percent range:
 
-Avoids unstable statistical CI assumptions
+Avoids unstable sigma-based CI
 
-Fits typical appraisal spread
+Matches typical appraisal & Zestimate variance
 
-Works consistently across all markets
+Works consistently across markets
 
 💰 Maximum Offer Price
 
-A conservative 5 percent buffer:
+We apply a conservative 5 percent safety margin:
 
-max_offer_price = predicted_fair_price × 0.95
+max_offer_price = predicted_fair_price * 0.95
 
 
-Ensures:
+This ensures:
 
-Avoiding overpayment
+We do not overpay
 
-Coverage for renovation + holding costs
+Renovation & holding costs are covered
 
-Margin for profitable resale
+Margins exist for profitable resale
 
 🏳️ Review Flag (AI Confidence Measure)
 
-We quantify uncertainty:
+We quantify uncertainty using:
 
 relative_bandwidth = (fair_high_95 - fair_low_95) / predicted_fair_price
 
 Decision Rule
-Condition	Flag
-relative_bandwidth > 0.50	REVIEW_REQUIRED
-else	OK
+
+If relative_bandwidth > 0.50 → REVIEW_REQUIRED
+
+Else → OK
 
 OK
-Model is sufficiently confident for automated pricing.
+→ Model is confident enough for automated pricing
 
 REVIEW_REQUIRED
-Human validation required due to high uncertainty.
+→ Human analyst must validate price due to high uncertainty
+
+This creates an AI + Human Hybrid Workflow.
 
 📦 Model-2 Output Columns
 Column	Description
-property_id	Unique property ID
-city, state, zip	Geographic fields
+property_id	Unique ID
+city, state, zip	Location fields
 beds, baths, sqft, lot_size, age	Structural features
 closed_price	Last recorded sale
-predicted_fair_price	ML estimated acquisition price
-fair_low_95, fair_high_95	±25 percent interval
+predicted_fair_price	ML-estimated acquisition price
+fair_low_95, fair_high_95	±25 percent range
 max_offer_price	Safe maximum bid
 review_flag	OK / REVIEW_REQUIRED
 CBSA, CBSA_NAME	Metro identifiers
-Final_City_Score	From Model-1
+Final_City_Score	Score from Model 1
 🗂️ Repository Structure (Model-2 Folder)
 Model_2/
 │
@@ -214,15 +203,15 @@ Model_2/Model2_AcquisitionPrice.ipynb
 
 The notebook will:
 
-Load & clean Redfin data
+Load + clean Redfin data
 
-Merge CBSA + Model-1 metrics
+Merge CBSA & Model-1 scores
 
-Train Gradient Boosting model
+Train Gradient Boosting Model
 
-Generate fair price & uncertainty bands
+Generate fair price + uncertainty bands
 
-Export final CSV
+Export output CSV
 
 🔍 Example Output (Sample Row)
 property_id:         10392
@@ -239,30 +228,30 @@ review_flag:          REVIEW_REQUIRED
 
 Model-2 establishes:
 
-A consistent acquisition pricing standard
+A consistent pricing standard for all acquisitions
 
-Protection against overbuying
+Protection against overpaying
 
-Input for profitability modeling (Model-3)
+A feed into profit modeling (Model-3)
 
-Foundation for Buy/No-Buy logic (Model-4)
+A foundation for Buy/No-Buy decisioning (Model-4)
 
-Inputs for financial statements: IS, CF, BS
+Inputs for financial statements including Income Statement, Cash Flow, and Balance Sheet
 
-It creates a repeatable scalable pricing engine for real estate investing.
+It creates a repeatable, scalable pricing engine for real estate investing.
 
 📈 Future Improvements
 
-Hyperparameter tuning using XGBoost / LightGBM
+Integrate XGBoost / LightGBM performance tuning
 
-Integrate neighborhood-level crime & school quality
+Add neighborhood-level crime + school quality data
 
-Add Zillow rent data for yield sensitivity
+Add Zillow rent estimates to refine yield models
 
-Use SHAP for deeper explainability
+Use Shapley values for explainability
 
-Deploy model as an API for real-time pricing
+Deploy as an API for real-time pricing
 
 🏁 Conclusion
 
-Model-2 converts raw property data into actionable acquisition price recommendations using ML and clear business rules. It is a foundational component of the full AI-driven real estate investment platform.
+Model-2 transforms raw property data into actionable acquisition insights using a structured ML workflow and transparent business rules. It is a key component in building a full AI-driven real estate investment platform.
