@@ -115,9 +115,7 @@ These metrics are consistent with expected variance in U.S. residential housing.
 
 ## 🏷️ Fair Price Estimation
 
-The ML model produces:
-
-predicted_fair_price
+The ML model produces: **predicted_fair_price**
 
 ## 🎯 Fair Price Range (95 percent interval)
 
