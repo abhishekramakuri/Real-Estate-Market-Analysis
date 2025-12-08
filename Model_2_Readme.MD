@@ -3,7 +3,7 @@
 
 ---
 
-## 🧩 Overview
+## Overview
 
 Model 2 estimates the fair acquisition price for residential properties across selected U.S. metros using property-level features and metro quality indicators. This model ensures we never overpay, provides a standardized pricing method for acquisitions, and creates the foundation for downstream profitability modeling (Model 3 and Model 4).
 
@@ -18,7 +18,7 @@ Model 2 is the first ML component that directly affects financial decisions, off
 
 ---
 
-## 📊 Key Objectives
+## Key Objectives
 
 - Predict a fair, explainable value for each property  
 - Apply business rules to set a disciplined acquisition price  
@@ -28,7 +28,7 @@ Model 2 is the first ML component that directly affects financial decisions, off
 
 ---
 
-## 📚 Data Sources Used
+## Data Sources Used
 
 ### 1. Redfin Property-Level Data
 
@@ -64,7 +64,7 @@ Created during preprocessing:
 
 ---
 
-## 🛠️ Feature Engineering Pipeline
+## Feature Engineering Pipeline
 
 Model-2 uses a clean set of engineered features structured for Gradient Boosting Regression.
 
@@ -94,7 +94,7 @@ Model-2 uses a clean set of engineered features structured for Gradient Boosting
 
 ---
 
-## 🤖 Modeling Approach
+## Modeling Approach
 
 We use a **Gradient Boosting Regressor (GBR)** due to:
 
@@ -113,11 +113,11 @@ These metrics are consistent with expected variance in U.S. residential housing.
 
 ---
 
-## 🏷️ Fair Price Estimation
+## Fair Price Estimation
 
 The ML model produces: **predicted_fair_price**
 
-## 🎯 Fair Price Range (95 percent interval)
+## Fair Price Range (95 percent interval)
 
 We then apply a transparent uncertainty interval:
 
@@ -132,7 +132,7 @@ This ±25 percent range:
 
 ---
 
-## 💰 Maximum Offer Price
+## Maximum Offer Price
 
 We apply a conservative 5 percent safety margin:
 
@@ -146,7 +146,7 @@ This ensures:
 
 ---
 
-## 🏳️ Review Flag (AI Confidence Measure)
+## Review Flag (AI Confidence Measure)
 
 We quantify uncertainty using:
 
@@ -167,7 +167,7 @@ This creates an **AI + Human Hybrid Workflow**.
 
 ---
 
-## 📦 Model-2 Output Columns
+## Model-2 Output Columns
 
 | Column                 | Description                              |
 |------------------------|------------------------------------------|
@@ -184,7 +184,7 @@ This creates an **AI + Human Hybrid Workflow**.
 
 ---
 
-## 🗂️ Repository Structure (Model-2 Folder)
+## Repository Structure (Model-2 Folder)
 
     Model_2/
     │
@@ -196,7 +196,7 @@ This creates an **AI + Human Hybrid Workflow**.
 
 ---
 
-## ▶️ How to Run Model-2
+## How to Run Model-2
 
 1. Install dependencies:
 
@@ -218,7 +218,7 @@ The notebook will:
 
 ---
 
-## 🔍 Example Output (Sample Row)
+## Example Output (Sample Row)
 
     property_id:         10392
     beds:                3
@@ -232,7 +232,7 @@ The notebook will:
 
 ---
 
-## 🚀 Why Model-2 Is Critical
+## Why Model-2 Is Critical
 
 Model-2 establishes:
 
@@ -246,7 +246,7 @@ It creates a **repeatable, scalable pricing engine** for real estate investing.
 
 ---
 
-## 📈 Future Improvements
+## Future Improvements
 
 - Integrate XGBoost / LightGBM performance tuning  
 - Add neighborhood-level crime + school quality data  
@@ -256,6 +256,6 @@ It creates a **repeatable, scalable pricing engine** for real estate investing.
 
 ---
 
-## 🏁 Conclusion
+## Conclusion
 
 Model-2 transforms raw property data into **actionable acquisition insights** using a structured ML workflow and transparent business rules. It is a key component in building a full AI-driven real estate investment platform.
