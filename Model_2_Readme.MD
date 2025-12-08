@@ -120,7 +120,6 @@ The ML model produces:
 ```text
 predicted_fair_price
 
-
 ## 🎯 Fair Price Range (95 percent interval)
 
 We then apply a transparent uncertainty interval:
