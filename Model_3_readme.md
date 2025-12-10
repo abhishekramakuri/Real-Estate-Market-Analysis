@@ -260,22 +260,6 @@ Scenario parameters are configurable and can be tuned later based on historical 
 
 ---
 
-## Repository Structure (Model-3 Folder)
-
-```
-Model_3/
-│
-├── Model3_PredictedSellingPrice.ipynb     # Main notebook
-├── Model3_SellingPrices_combined.csv      # Final output
-├── assumptions/                           # Internal ranges and rules
-│   ├── reno_cost_bands.json
-│   ├── uplift_bands.json
-│   └── scenario_config.json
-└── README_Model3.md
-```
-
----
-
 ## How to Run Model-3
 
 1. Install dependencies:
