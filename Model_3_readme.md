@@ -1,321 +1,244 @@
-# Model 3 – Predicted Selling Price Estimation Model
+Model 3 – Predicted Selling Price Model
 
-**AI-Adjusted After-Repair Value (ARV) for Renovation, Eco, and Customer Preference Premiums**
+AI-Adjusted After-Repair Value (ARV) with Renovation, Eco, and Customer Preference Premiums
 
----
+Overview
 
-## Overview
-
-Model 3 estimates the **predicted selling price** for residential properties after planned improvements. It builds directly on Model 2’s acquisition pricing output and introduces a structured adjustment layer for **renovation scope, eco-upgrades, and customer experience premiums**. The goal is to produce a realistic, explainable **After-Repair Value (ARV)** under multiple scenarios that can be used by Model 4 for disciplined Buy/No-Buy decisions.
+Model 3 estimates the predicted selling price (After-Repair Value / ARV) for shortlisted properties by adjusting Model-2’s acquisition valuation for expected renovation impact, eco-upgrades, and customer experience premiums. This model bridges the gap between “fair buy price” and “expected exit price,” enabling a realistic profitability view for downstream investment decisions in Model 4.
 
 The model produces:
 
-* **Predicted Selling Price (Base Case ARV)**
-* **Bull and Bear Scenario Selling Prices**
-* **Estimated Renovation Cost and Timeline**
-* **Uplift Breakdown (Renovation + Eco + Customer Experience)**
+Estimated Renovation Tier (Light / Medium / Heavy)
 
-Model 3 is the second pricing layer that directly impacts **margin projections**, **stop-loss thresholds**, and **risk-adjusted feasibility.
+Estimated Renovation Cost
 
----
+Renovation Time Estimate
 
-## Key Objectives
+Eco + Customer Preference Strategy Flags
 
-* Forecast an explainable post-renovation resale price at scale
-* Quantify value creation from renovation intensity
-* Capture buyer preference premiums through simple, controllable strategy flags
-* Support market uncertainty using scenario testing
-* Avoid heavy dependency on new third-party datasets in MVP
-* Produce standardized outputs for Model 4 profitability and risk gating
+Total Value Uplift Percentage
 
----
+Predicted Selling Price (Base / Bull / Bear)
 
-## Data Sources Used
+Model 3 is designed as a regression + scenario testing layer, where renovation and premium assumptions can be calibrated based on contractor market data and operational efficiency.
 
-### 1. Model-2 Outputs (Primary Input)
+Key Objectives
 
-Provides acquisition-side baseline plus property/metro context:
+Predict a realistic post-renovation selling price
 
-* `predicted_fair_price`
-* `fair_low_95`, `fair_high_95`
-* `max_offer_price`
-* `review_flag`
-* Structural + location attributes
-* `Final_City_Score` from Model 1
+Translate renovation scope into cost + timeline estimates
 
-### 2. Redfin Property-Level Attributes (Inherited via Model 2)
+Incorporate eco-upgrade and customer preference premiums
 
-Used as renovation intensity and scale proxies:
+Provide multi-scenario ARV projections (Base/Bull/Bear)
 
-* Beds, baths, square footage
-* Lot size
-* Closed price
-* City, state, ZIP
-* Year built → **age**
+Generate standardized outputs for Model-4 Buy/No-Buy underwriting
 
-### 3. Model-1 Outputs (Inherited via Model 2)
+Data Sources Used
+1. Model-2 Property-Level Outputs
 
-Used as a soft demand/quality signal:
+Provides the acquisition foundation:
 
-* **Final City Score**
+predicted_fair_price
 
-### 4. Internal Underwriting Assumptions (MVP)
+max_offer_price
 
-Generated programmatically for scalability:
+fair_low_95, fair_high_95
 
-* Renovation tier assignment
-* Tier-based cost-per-sqft bands
-* Eco and customer experience strategy flags
-* Scenario configuration parameters
+Structural features (beds, baths, sqft, lot_size, age)
 
----
+Location identifiers (city, state, zip, CBSA)
 
-## Feature Engineering Pipeline
+Metro signal (Final_City_Score)
 
-Model 3 uses an explainable adjustment framework anchored on Model 2’s fair price.
+2. Renovation Strategy Assumptions (MVP)
 
-### Baseline Inputs (from Model 2)
+For midterm implementation, renovation cost and uplift parameters are generated using structured, explainable rules based on:
 
-* `property_id`
-* `city`, `state`, `zip`
-* `CBSA`, `CBSA_NAME`
-* `beds`, `baths`, `sqft`, `lot_size`, `age`
-* `closed_price`
-* `predicted_fair_price`
-* `fair_low_95`, `fair_high_95`
-* `max_offer_price`
-* `review_flag`
-* `Final_City_Score`
+Property age tiering
 
-### New Model-3 Engineered Features
+Market strength proxy via Final_City_Score
 
-**Renovation Plan Features**
+Conservative renovation cost caps to avoid unrealistic budgets
 
-* `reno_tier` (Light / Medium / Heavy)
-* `cost_per_sqft` (helper)
-* `estimated_reno_cost`
-* `estimated_reno_days`
+Feature Engineering Pipeline
 
-**Upgrade Strategy Features**
+Model 3 introduces a renovation and premium adjustment layer on top of Model 2.
 
-* `eco_upgrade_flag` (0/1)
-* `warranty_flag` (0/1)
-* `fast_close_flag` (0/1)
+Renovation Tier Assignment
 
-**Value Premium Features**
+Renovation tier is assigned using property age:
 
-* `reno_uplift_pct`
-* `eco_uplift_pct`
-* `cx_uplift_pct`
-* `total_uplift_pct`
+Light → newer homes
 
-**Scenario Outputs**
+Medium → mid-age homes
 
-* `predicted_sell_price_base`
-* `predicted_sell_price_bull`
-* `predicted_sell_price_bear`
+Heavy → older homes
 
-### Data Cleaning Steps
+A distress-based tier bump is optionally applied if:
 
-* Reuse Model 2’s cleaned and merged dataset
-* Validate numeric fields for `sqft`, `age`, `beds`, `baths`
-* Ensure price columns are numeric
-* Handle missing values using conservative defaults where needed
-* Apply deterministic seed-based estimation for reproducibility in MVP
+closed_price is significantly below fair_low_95
 
----
+This imitates likely repair needs when the last sale indicates undervaluation due to property condition.
 
-## Modeling Approach
+Renovation Cost Estimation
 
-Model 3 is implemented as a **hybrid ARV adjustment model** in Phase 1:
+Renovation cost is estimated using:
 
-* Rule-based renovation inference
-* Controlled renovation cost and timeline estimation
-* Structured uplift modeling
-* Scenario-based resale forecasting
+Cost per sqft ranges by tier
 
-This approach is intentionally lightweight, explainable, and scalable across large property batches.
+Bath premium add-on
 
----
+A hard cap as a percentage of fair value
 
-## Renovation Tier Assignment
+This cap is critical for stability:
 
-We use property age as a stable condition proxy:
+estimated_reno_cost ≤ predicted_fair_price × cap_pct
 
-* `age ≤ 20` → **Light**
-* `21–50` → **Medium**
-* `> 50` → **Heavy**
 
+This ensures that synthetic renovation budgets remain aligned with scalable contractor operations and avoids overestimating rehab cost.
 
----
+Strategy Flags (Premium Drivers)
 
-## Renovation Cost Estimation (MVP)
+Model 3 uses strategy flags to support premium-based ARV uplift logic:
 
-Tier-based cost-per-sqft bands:
+eco_upgrade_flag
 
-* Light: **$15–$30 / sqft**
-* Medium: **$30–$60 / sqft**
-* Heavy: **$60–$100 / sqft**
+warranty_flag
 
-Computation:
+fast_close_flag
 
-```
-estimated_reno_cost = sqft * cost_per_sqft
-```
+These approximate buyer preference uplifts using a market strength proxy.
 
+Market-Driven Logic (MVP)
 
----
+Higher Final_City_Score markets are more likely to justify:
 
-## Renovation Timeline Estimation (MVP)
+eco upgrades
 
-Tier-based duration bands:
+faster-close incentives
 
-* Light: **14–30 days**
-* Medium: **30–60 days**
-* Heavy: **60–120 days**
+higher perceived buyer convenience premiums
 
----
+Value Uplift Estimation
 
-## Value Uplift Computation
+Model 3 decomposes selling price uplift into three parts:
 
-Model 3 applies structured state-of-plan premiums:
+Renovation Uplift
 
-**Renovation uplift ranges**
+Derived from reno tier using bounded ranges.
 
-* Light: 4%–8%
-* Medium: 8%–15%
-* Heavy: 15%–25%
+Eco Uplift
 
-**Eco uplift**
+Applied only if:
 
-* If `eco_upgrade_flag = 1` → +1%–3%
-* Else → 0%
+eco_upgrade_flag = 1
 
-**Customer experience (CX) uplift**
+Customer Preference Uplift
 
-* Warranty premium: +0.5%–1.5%
-* Fast-close premium: +0.5%–1.0%
+Includes:
 
-Total uplift definition:
+warranty premium
 
-```
-total_uplift_pct = reno_uplift_pct + eco_uplift_pct + cx_uplift_pct
-```
+fast-close premium
 
----
+Predicted Selling Price
 
-## Predicted Selling Price (Base Case ARV)
+The estimated total uplift is applied to Model-2 fair input:
 
-Model 3 anchors resale value to Model 2’s fair price:
+predicted_sell_price_base
+= predicted_fair_price × (1 + total_uplift_pct)
 
-```
-predicted_sell_price_base = predicted_fair_price * (1 + total_uplift_pct)
-```
 
-This ensures resale forecasting is directly tied to disciplined acquisition valuation.
+Scenario outputs:
 
----
+predicted_sell_price_bull = base × 1.04
+predicted_sell_price_bear = base × 0.96
 
-## Scenario Testing
 
-To reflect market uncertainty, Model 3 generates three cases:
+These scenarios support risk-adjusted exit planning.
 
-```
-predicted_sell_price_bull = predicted_sell_price_base * 1.04
-predicted_sell_price_bear = predicted_sell_price_base * 0.96
-```
+Model-3 Output Columns
+Column	Description
+reno_tier	Estimated renovation category
+cost_per_sqft	Tier-based cost intensity
+estimated_reno_cost	Projected rehab budget
+estimated_reno_days	Rehab duration estimate
+eco_upgrade_flag	Eco strategy indicator
+warranty_flag	Buyer confidence premium indicator
+fast_close_flag	Speed-to-close premium indicator
+reno_uplift_pct	ARV uplift from renovation
+eco_uplift_pct	ARV uplift from eco upgrades
+cx_uplift_pct	ARV uplift from buyer experience
+total_uplift_pct	Combined uplift
+predicted_sell_price_base	Base ARV
+predicted_sell_price_bull	Bull-case ARV
+predicted_sell_price_bear	Bear-case ARV
 
-Scenario parameters are configurable and can be tuned later based on historical performance.
+How to Run Model-3
 
----
+Ensure Model-2 output exists:
 
-## Model-3 Output Columns
+Model2_AcquisitionPrices_combined.csv
 
-| Column                                     | Description                   |
-| ------------------------------------------ | ----------------------------- |
-| `property_id`                              | Unique ID                     |
-| `city`, `state`, `zip`                     | Location fields               |
-| `beds`, `baths`, `sqft`, `lot_size`, `age` | Structural features           |
-| `closed_price`                             | Last recorded sale            |
-| `predicted_fair_price`                     | Model 2 acquisition baseline  |
-| `fair_low_95`, `fair_high_95`              | Model 2 uncertainty band      |
-| `max_offer_price`                          | Model 2 safe maximum bid      |
-| `review_flag`                              | Model 2 confidence flag       |
-| `CBSA`, `CBSA_NAME`                        | Metro identifiers             |
-| `Final_City_Score`                         | Score from Model 1            |
-| `reno_tier`                                | Light / Medium / Heavy        |
-| `cost_per_sqft`                            | Tier-based helper estimate    |
-| `estimated_reno_cost`                      | Estimated renovation budget   |
-| `estimated_reno_days`                      | Estimated renovation duration |
-| `eco_upgrade_flag`                         | Eco upgrade inclusion         |
-| `warranty_flag`                            | Warranty inclusion            |
-| `fast_close_flag`                          | Fast-close positioning        |
-| `reno_uplift_pct`                          | Renovation value premium      |
-| `eco_uplift_pct`                           | Eco value premium             |
-| `cx_uplift_pct`                            | Customer experience premium   |
-| `total_uplift_pct`                         | Total premium applied         |
-| `predicted_sell_price_base`                | Base-case ARV                 |
-| `predicted_sell_price_bull`                | Upside-case ARV               |
-| `predicted_sell_price_bear`                | Downside-case ARV             |
+Open notebook:
 
----
+Model_3/Model3_PredictedSellingPrice.ipynb
 
-## How to Run Model-3
-
-1. Install dependencies:
-
-   pip install -r requirements.txt
-
-2. Open the notebook:
-
-   Model_3/Model3_PredictedSellingPrice.ipynb
-
-3. Run all cells.
+Run all cells.
 
 The notebook will:
 
-* Load Model 2 output
-* Assign renovation tiers
-* Estimate renovation costs and timelines
-* Apply eco + CX premiums
-* Generate base/bull/bear selling prices
-* Export Model 3 CSV
+Load Model-2 outputs
 
----
+Assign renovation tiers
 
-## Example Output (Sample Row)
+Estimate renovation cost + duration
 
-```
-property_id:              10392
-beds:                     3
-baths:                    1.5
-sqft:                     1897
-age:                      42
-predicted_fair_price:     186,893
-reno_tier:                Medium
-estimated_reno_cost:      ~75,000–85,000 (MVP range)
-total_uplift_pct:         ~0.10–0.14
-predicted_sell_price_base: ~205,000–213,000
-predicted_sell_price_bull: ~213,000–221,000
-predicted_sell_price_bear: ~197,000–205,000
-```
+Generate eco/CX flags
 
----
+Compute uplift components
 
-## Why Model-3 Is Critical
+Produce Base/Bull/Bear ARV
 
-Model 3 establishes:
+Export Model-3 output CSV
 
-* A standardized, scalable ARV estimation layer
-* A structured way to monetize planned improvements
-* Scenario-aware safeguards before capital deployment
-* A clean feed into Model 4’s margin, liquidity, and stop-loss logic
+Example Output (Sample Row)
+property_id:  10392
+predicted_fair_price: 186,893
+reno_tier: Medium
+estimated_reno_cost: 32,500
+total_uplift_pct: 0.16
+predicted_sell_price_base: 216,796
+predicted_sell_price_bull: 225,468
+predicted_sell_price_bear: 208,124
 
-It ensures resale forecasts reflect **intentional value creation**, not only market averages.
+Why Model-3 Is Critical
 
+Model-3 establishes:
 
----
+A consistent ARV estimation layer
 
-## Conclusion
+Translation of renovation strategy into measurable uplift
 
-Model 3 transforms Model 2’s disciplined acquisition estimates into realistic, scenario-aware resale forecasts by explicitly modeling renovation impact, eco-upgrade premiums, and customer experience uplift. Its lean, explainable architecture enables scalable underwriting today and creates a clear path toward a fully trained ARV model once post-renovation sale outcomes are available.
+A quantified risk-adjusted selling range
+
+A clean feed into profit modeling and acquisition gatekeeping (Model-4)
+
+It converts acquisition valuation into exit-driven investment intelligence.
+
+Future Improvements
+
+Replace synthetic reno cost ranges with contractor bid datasets
+
+Add neighborhood-level comps for micro-ARV adjustments
+
+Integrate permit and material inflation indices
+
+Use SHAP to explain premium drivers
+
+Deploy as an ARV API for real-time scenario testing
+
+Conclusion
+
+Model-3 refines Model-2’s acquisition valuation into a realistic post-renovation exit price. By combining renovation cost discipline with premium-based uplift logic and scenario testing, it provides the essential ARV backbone for Model-4 investment decisioning.
