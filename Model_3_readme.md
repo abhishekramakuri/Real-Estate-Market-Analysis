@@ -146,10 +146,6 @@ We use property age as a stable condition proxy:
 * `21–50` → **Medium**
 * `> 50` → **Heavy**
 
-**Optional distress-based tier bump** (MVP logic):
-
-* If `closed_price < fair_low_95` → increase expected tier by one level
-  (Light → Medium, Medium → Heavy)
 
 ---
 
@@ -167,9 +163,6 @@ Computation:
 estimated_reno_cost = sqft * cost_per_sqft
 ```
 
-Optional complexity adjustment:
-
-* Add a small bath-based premium per tier.
 
 ---
 
@@ -336,15 +329,6 @@ Model 3 establishes:
 
 It ensures resale forecasts reflect **intentional value creation**, not only market averages.
 
----
-
-## Future Improvements
-
-* Calibrate cost bands using real contractor quote history
-* Introduce CBSA-level cost multipliers
-* Add itemized renovation features (kitchen, bath, roof, HVAC)
-* Upgrade from rule-based uplift to an ML ARV model after collecting outcomes
-* Add explainability dashboards for renovation ROI by tier
 
 ---
 
