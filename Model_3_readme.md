@@ -1,5 +1,3 @@
-"
-
 # Model 3 – Predicted Selling Price Model
 
 **AI-Adjusted After-Repair Value (ARV) with Renovation, Eco, and Customer Preference Premiums**
@@ -235,6 +233,4 @@ It converts acquisition valuation into **exit-driven investment intelligence**.
 ## Conclusion
 
 Model-3 refines Model-2’s acquisition valuation into a realistic **post-renovation exit price**. By combining renovation cost discipline with premium-based uplift logic and scenario testing, it provides the essential ARV backbone for Model-4 investment decisioning.
-
-"
 
