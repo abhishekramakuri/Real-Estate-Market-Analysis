@@ -1,12 +1,3 @@
-Yes — here are **Model 3** and **Model 4** write-ups in the **exact same hashtag / section style** as your Model 2 template, copy-friendly for your report.
-
-I’m aligning these to the **latest calibrated versions you implemented**:
-
-* Model 3 with **contractor-efficiency assumptions + capped reno cost**
-* Model 4 with **tiered margin policy + multi-horizon profitability**
-
----
-
 "
 
 # Model 3 – Predicted Selling Price Model
